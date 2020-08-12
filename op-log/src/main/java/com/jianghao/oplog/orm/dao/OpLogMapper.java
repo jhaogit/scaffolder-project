@@ -2,7 +2,9 @@ package com.jianghao.oplog.orm.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jianghao.oplog.orm.po.OpLog;
+import com.jianghao.oplog.orm.po.OpLogInfo;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 @Repository
 public interface OpLogMapper extends BaseMapper<OpLog> {
@@ -17,4 +19,7 @@ public interface OpLogMapper extends BaseMapper<OpLog> {
     int updateByPrimaryKeySelective(OpLog record);
 
     int updateByPrimaryKey(OpLog record);
+
+    void insertListSelective(List<OpLogInfo> opLogInfos);
+
 }

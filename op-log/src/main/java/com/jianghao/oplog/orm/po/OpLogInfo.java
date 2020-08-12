@@ -1,5 +1,7 @@
 package com.jianghao.oplog.orm.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,6 +17,7 @@ public class OpLogInfo {
     * 主键
     */
     @ApiModelProperty(value="主键")
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**

@@ -19,5 +19,5 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
 
     int updateByPrimaryKey(UserInfo record);
 
-    int insertListSelective(List<UserInfo> userInfos);
+    int insertListSelective(List<UserInfo> list);
 }

@@ -27,7 +27,7 @@
     delete from op_log_info
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jianghao.oplog.orm.po.OpLogInfo" useGeneratedKeys="true">
+  <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" parameterType="com.jianghao.oplog.orm.po.OpLogInfo" >
     <!--@mbg.generated-->
     insert into op_log_info (op_log_id, `table_name`, table_key_info, 
       update_info, create_time)
@@ -104,4 +104,13 @@
       create_time = #{createTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <insert id="insertListSelective" parameterType="java.util.List">
+    <!--@mbg.generated-->
+    insert into op_log_info (op_log_id, `table_name`, table_key_info, update_info)
+    values
+    <foreach collection="list" item="item" index="i" separator=",">
+       (#{item.opLogId,jdbcType=INTEGER}, #{item.tableName,jdbcType=VARCHAR},
+       #{item.tableKeyInfo,jdbcType=VARCHAR},#{item.updateInfo,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
 </mapper>

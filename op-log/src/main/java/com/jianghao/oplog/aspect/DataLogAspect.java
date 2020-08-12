@@ -9,7 +9,11 @@ import com.alibaba.fastjson.JSON;
 import com.jianghao.oplog.annotation.DataLog;
 import com.jianghao.oplog.handle.CompareParam;
 import com.jianghao.oplog.handle.CompareResult;
+import com.jianghao.oplog.orm.dao.OpLogInfoMapper;
+import com.jianghao.oplog.orm.dao.OpLogMapper;
+import com.jianghao.oplog.orm.po.OpLog;
 import com.jianghao.oplog.orm.po.OpLogInfo;
+import com.jianghao.oplog.util.IpAddressUtils;
 import com.jianghao.oplog.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -19,9 +23,11 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -44,6 +50,16 @@ public class DataLogAspect {
 
     private final DataSource dataSource;
 
+    private HttpServletRequest request;
+
+    @Autowired
+    private OpLogMapper opLogMapper;
+
+    @Autowired
+    private OpLogInfoMapper opLogInfoMapper;
+
+
+
     /**
      *数据缓存，根据线程id
      */
@@ -53,23 +69,23 @@ public class DataLogAspect {
 
 
     /**
-     * @param threadName
+     * @param threadId
      * @return boolean
      * @Description: 判断线程是否需要记录日志
      */
-    public static boolean hasThread(Long threadName) {
-        return TEM_MAP.containsKey(threadName);
+    public static boolean hasThread(Long threadId) {
+        return TEM_MAP.containsKey(threadId);
     }
 
     /**
-     * @param threadName
+     * @param threadId
      * @param dataCache
      * @return void
      * @Description: 增加线程数据库操作
      */
-    public static void put(Long threadName, DataCache dataCache) {
-        if (TEM_MAP.containsKey(threadName)) {
-            TEM_MAP.get(threadName).add(dataCache);
+    public static void put(Long threadId, DataCache dataCache) {
+        if (TEM_MAP.containsKey(threadId)) {
+            TEM_MAP.get(threadId).add(dataCache);
         }
     }
 
@@ -83,9 +99,15 @@ public class DataLogAspect {
     public void before(DataLog dataLog) {
         // 获取线程名，使用线程名作为同一次操作记录
         //todo 记录请求的基础信息并入库，操作人员、时间、部门、ip、菜单、功能、路径、方法、入参、出参等
-
-        Long threadName = Thread.currentThread().getId();
-        TEM_MAP.put(threadName, new LinkedList<>());
+        OpLog opLog = new OpLog();
+        opLog.setRequestIp(IpAddressUtils.getIpAddress(request));
+        opLog.setRequestUri(request.getRequestURI());
+        opLog.setRequestMethod(request.getMethod());
+        opLog.setRequestTime(new Date());
+        Long threadId = Thread.currentThread().getId();
+        opLogMapper.insertSelective(opLog);
+        LOG_MAP.put(threadId,opLog.getId());
+        TEM_MAP.put(threadId, new LinkedList<>());
     }
 
     /**
@@ -97,8 +119,8 @@ public class DataLogAspect {
     @After("@annotation(dataLog)")
     public void after(DataLog dataLog) {
         // 获取线程名，使用线程名作为同一次操作记录
-        Long threadName = Thread.currentThread().getId();
-        List<DataCache> list = TEM_MAP.get(threadName);
+        Long threadId = Thread.currentThread().getId();
+        List<DataCache> list = TEM_MAP.get(threadId);
         if (CollUtil.isEmpty(list)) {
             return;
         }
@@ -143,7 +165,7 @@ public class DataLogAspect {
             this.compareAndSave(list);
         } finally {
             // 移除当前线程
-            TEM_MAP.remove(threadName);
+            TEM_MAP.remove(threadId);
         }
     }
 
@@ -191,6 +213,7 @@ public class DataLogAspect {
                     List<CompareParam> params = compareResult.getParams();
                     List<String> updateInfoList = new ArrayList<>();
                     OpLogInfo opLogInfo = new OpLogInfo();
+                    opLogInfo.setOpLogId(LOG_MAP.get(Thread.currentThread().getId()));
                     params.forEach(r -> {
                         if (finalI[0] == 0) {
                             opLogInfo.setTableName(dataCache.getTableName());
@@ -212,6 +235,7 @@ public class DataLogAspect {
                     List<CompareParam> params = compareResult.getParams();
                     List<String> updateInfoList = new ArrayList<>();
                     OpLogInfo opLogInfo = new OpLogInfo();
+                    opLogInfo.setOpLogId(LOG_MAP.get(Thread.currentThread().getId()));
                     params.forEach(r -> {
                         if (finalI[0] == 0) {
                             opLogInfo.setTableName(dataCache.getTableName());
@@ -233,6 +257,7 @@ public class DataLogAspect {
                     List<CompareParam> params = compareResult.getParams();
                     List<String> updateInfoList = new ArrayList<>();
                     OpLogInfo opLogInfo = new OpLogInfo();
+                    opLogInfo.setOpLogId(LOG_MAP.get(Thread.currentThread().getId()));
                     params.forEach(r -> {
                         if (finalI[0] == 0) {
                             opLogInfo.setTableName(dataCache.getTableName());
@@ -247,8 +272,8 @@ public class DataLogAspect {
                 log.info("新增结果：{}",opLogInfos);
             }
         });
-        // 存库
-
+        opLogInfoMapper.insertListSelective(opLogInfos);
+        LOG_MAP.remove(Thread.currentThread().getId());
     }
 
     /**

@@ -8,7 +8,6 @@ import com.jianghao.oplog.orm.po.UserInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Random;
 

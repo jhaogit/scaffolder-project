@@ -1,6 +1,5 @@
 package com.jianghao.oplog.handle;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.Db;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -51,9 +50,9 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         // 获取线程名，使用线程名作为同一次操作记录
-        Long threadName = Thread.currentThread().getId();
+        Long threadId = Thread.currentThread().getId();
         // 判断是否需要记录日志
-        if (!DataLogAspect.hasThread(threadName)) {
+        if (!DataLogAspect.hasThread(threadId)) {
             return invocation.proceed();
         }
         Statement statement;
@@ -137,7 +136,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
                 }
                 dataCache.setOldData(oldData);
                 dataCache.setSqlList(sqlList);
-                DataLogAspect.put(threadName, dataCache);
+                DataLogAspect.put(threadId, dataCache);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -176,7 +175,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
                 }
                 dataCache.setOldData(oldData);
                 dataCache.setSqlList(sqlList);
-                DataLogAspect.put(threadName, dataCache);
+                DataLogAspect.put(threadId, dataCache);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -249,7 +248,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             List<String> sqls = new ArrayList<>();
             sqls.add(sb.toString());
             dataCache.setSqlList(sqls);
-            DataLogAspect.put(threadName, dataCache);
+            DataLogAspect.put(threadId, dataCache);
             return proceed;
         }
         return invocation.proceed();
