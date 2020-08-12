@@ -1,0 +1,33 @@
+server:
+  port: 8890
+spring:
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 172.16.24.227
+    port: 5672
+    username: admin
+    password: citydo1234
+    # 发送方消息确认: 已发送到Queue
+    publisher-returns: true
+    publisher-confirm-type: SIMPLE
+    listener:
+      type: simple
+      direct:
+        #NONE（默认）：自动；AUTO：根据情况确认；MANUAL：手动确认
+        acknowledge-mode: manual
+        retry:
+          #是否开启消费者重试
+          enabled: true
+          #重试次数
+          max-attempts: 3
+          #重试间隔时间（单位毫秒）
+          initial-interval: 5000
+      simple:
+        acknowledge-mode: manual
+        retry:
+          #是否开启消费者重试
+          enabled: true
+          #重试次数
+          max-attempts: 3
+          #重试间隔时间（单位毫秒）
+          initial-interval: 5000
