@@ -1,4 +1,4 @@
-package com.jianghao.controlleradvice.exception;
+package com.jianghao.quartz.exception;
 
 import lombok.Getter;
 

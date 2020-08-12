@@ -4,7 +4,6 @@ import com.jianghao.limit.service.Limit;
 import com.jianghao.limit.service.LimitType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
