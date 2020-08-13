@@ -210,6 +210,9 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             BoundSql boundSql = parameterHandler.getBoundSql();
             Map<String,Object> map = (Map<String,Object>)boundSql.getParameterObject();
 
+            /*
+             * 组装执行insert后，获取insert行 对应的select语句
+             */
             String collect = keyColumnNames.stream().collect(Collectors.joining(","));
             String ks = "("+ collect +")";
             StringBuffer sb = new StringBuffer();
