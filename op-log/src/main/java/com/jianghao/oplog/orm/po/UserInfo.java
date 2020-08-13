@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.jianghao.oplog.annotation.DataLog;
+import com.jianghao.oplog.annotation.LogReplace;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.Date;
 @ApiModel(value="用户信息")
 @Data
 @TableName("tb_user_info")
+@LogReplace
 public class UserInfo {
     /**
     * 主键
@@ -30,7 +32,7 @@ public class UserInfo {
     * 1-男 2-女
     */
     @ApiModelProperty(value="1-男 2-女")
-    @DataLog(note = "性别",isLog = true)
+    @DataLog(note = "性别",isLog = true,replace = {"男_1","女_2"})
     private Integer sex;
 
     /**

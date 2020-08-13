@@ -66,14 +66,13 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
         try {
             statement = (Statement) stmtMetaObj.getValue("stmt.statement");
         } catch (Exception e) {
-            // do nothing
+            log.error("error:{}",e);
         }
         if (stmtMetaObj.hasGetter("delegate")) {
-            //Hikari
             try {
                 statement = (Statement) stmtMetaObj.getValue("delegate");
-            } catch (Exception ignored) {
-
+            } catch (Exception e) {
+                log.error("error:{}",e);
             }
         }
         String originalSql = statement.toString();
@@ -138,7 +137,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
                 dataCache.setSqlList(sqlList);
                 DataLogAspect.put(threadId, dataCache);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("error:{}",e);
             }
             return invocation.proceed();
         }
@@ -177,7 +176,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
                 dataCache.setSqlList(sqlList);
                 DataLogAspect.put(threadId, dataCache);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("error:{}",e);
             }
             return invocation.proceed();
         }

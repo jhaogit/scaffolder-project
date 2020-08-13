@@ -2,10 +2,10 @@ package com.jianghao.oplog.orm.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.jianghao.oplog.annotation.DataLog;
+import com.jianghao.oplog.annotation.LogReplace;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
 import java.util.Date;
 
 /**
@@ -14,6 +14,7 @@ import java.util.Date;
 @ApiModel(value="测试联合主键表实体")
 @Data
 @TableName("tb_test_two")
+@LogReplace
 public class TestTwo {
     /**
     * 主键1

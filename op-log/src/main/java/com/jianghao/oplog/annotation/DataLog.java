@@ -30,4 +30,8 @@ public @interface DataLog {
      * 属性说明
      */
     String note()default "";
+    /*
+     * 字段映射 规范 replace = {"待审核_0","未通过_1","已通过_2"}
+     */
+    String[] replace()default "";
 }
