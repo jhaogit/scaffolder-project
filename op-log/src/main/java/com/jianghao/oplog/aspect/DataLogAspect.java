@@ -52,10 +52,8 @@ public class DataLogAspect {
 
     private HttpServletRequest request;
 
-    @Autowired
     private OpLogMapper opLogMapper;
 
-    @Autowired
     private OpLogInfoMapper opLogInfoMapper;
 
 
