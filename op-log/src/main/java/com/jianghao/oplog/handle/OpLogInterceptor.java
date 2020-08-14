@@ -183,7 +183,6 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
 
         //新增
         if(SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())){
-
             //获取所有key的名称
             Set<String> keyNames = new HashSet<>();
             Set<String> keyColumnNames = new HashSet<>();
@@ -203,7 +202,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             dataCache.setEntityType(entityType);
 
             Object proceed = invocation.proceed();
-            //获取新增的id
+            //获取新增数据的list列表（包含主键）
             Object target = invocation.getTarget();
             RoutingStatementHandler routingStatementHandler = (RoutingStatementHandler) SystemMetaObject.forObject(target).getValue("h.target");
             PreparedStatementHandler parameterHandler = (PreparedStatementHandler) SystemMetaObject.forObject(routingStatementHandler).getValue("delegate");
@@ -211,7 +210,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             Map<String,Object> map = (Map<String,Object>)boundSql.getParameterObject();
 
             /*
-             * 组装执行insert后，获取insert行 对应的select语句
+             * 组装执行insert后，获取insert行对应的select语句
              */
             String collect = keyColumnNames.stream().collect(Collectors.joining(","));
             String ks = "("+ collect +")";

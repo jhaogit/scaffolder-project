@@ -79,10 +79,14 @@ public class DataLogAspect {
     /**
      * @param
      * @return void
-     * @Description: 初始化项目中所有需要替换的值映射 todo 包路径从配置文件读取
+     * @Description: 初始化项目中所有需要替换的值映射
      */
     @PostConstruct
     public void replaceInit(){
+        /**
+         * packageName: 包路径（扫描需要属性映射的实体类）
+         * LogReplace.class: 注解，用于标记实体类中有属性值需要映射
+         */
         Set<Class<?>> classSet = getReplace(packageName, LogReplace.class);
         classSet.forEach(c->{
             String className = c.getName();
@@ -185,6 +189,7 @@ public class DataLogAspect {
             return;
         }
         try {
+            //获取新数据
             list.forEach(dataCache -> {
                 try {
                     if(SqlCommandType.UPDATE.equals(dataCache.getOpType())){
