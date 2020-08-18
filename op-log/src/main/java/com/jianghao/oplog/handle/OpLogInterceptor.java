@@ -55,43 +55,30 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
         if (!DataLogAspect.hasThread(threadId)) {
             return invocation.proceed();
         }
+
+        //用于执行静态SQL语句的对象
         Statement statement;
         Object firstArg = invocation.getArgs()[0];
+
         if (Proxy.isProxyClass(firstArg.getClass())) {
             statement = (Statement) SystemMetaObject.forObject(firstArg).getValue("h.statement");
         } else {
             statement = (Statement) firstArg;
         }
-        MetaObject stmtMetaObj = SystemMetaObject.forObject(statement);
-        try {
-            statement = (Statement) stmtMetaObj.getValue("stmt.statement");
-        } catch (Exception e) {
-            log.error("error:{}",e);
-        }
-        if (stmtMetaObj.hasGetter("delegate")) {
-            try {
-                statement = (Statement) stmtMetaObj.getValue("delegate");
-            } catch (Exception e) {
-                log.error("error:{}",e);
-            }
-        }
-        String originalSql = statement.toString();
-        originalSql = originalSql.replaceAll("[\\s]+", StringPool.SPACE);
-        int index = indexOfSqlStart(originalSql);
+        String sql = statement.toString();
+        sql = sql.replaceAll("[\\s]+", StringPool.SPACE);
+        //获取实际执行的静态sql
+        int index = indexOfSqlStart(sql);
         if (index > 0) {
-            originalSql = originalSql.substring(index);
+            sql = sql.substring(index).replaceAll("where","WHERE");
         }
 
+        //获取StatementHandler，负责操作Statement
         StatementHandler statementHandler = PluginUtils.realTarget(invocation.getTarget());
+        //获取MetaObject,主要是对实例化的对象进行赋值和取值用的，其底层也是利用的反射获取实例的 getter 和 setter 方法进行赋值
         MetaObject metaObject = SystemMetaObject.forObject(statementHandler);
         this.sqlParser(metaObject);
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
-
-        // 获取执行Sql
-        String sql = originalSql.replace("where", "WHERE");
-        // 插入
-        if (SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())) {
-        }
 
         // 使用mybatis-plus 工具解析sql获取表名
         Collection<String> tables = new TableNameParser(sql).tables();
@@ -103,6 +90,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
         // 使用mybatis-plus 工具根据表名找出对应的实体类
         Class<?> entityType = TableInfoHelper.getTableInfos().stream().filter(t -> t.getTableName().equals(tableName))
                 .findFirst().orElse(new TableInfo(null)).getEntityType();
+
         DataCache dataCache = new DataCache();
         // 更新
         if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType())) {
@@ -207,7 +195,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             RoutingStatementHandler routingStatementHandler = (RoutingStatementHandler) SystemMetaObject.forObject(target).getValue("h.target");
             PreparedStatementHandler parameterHandler = (PreparedStatementHandler) SystemMetaObject.forObject(routingStatementHandler).getValue("delegate");
             BoundSql boundSql = parameterHandler.getBoundSql();
-            Map<String,Object> map = (Map<String,Object>)boundSql.getParameterObject();
+            Map<String,Object> map = (Map<String, Object>) JSON.parse(JSON.toJSONString(boundSql.getParameterObject()));
 
             /*
              * 组装执行insert后，获取insert行对应的select语句
@@ -220,7 +208,7 @@ public class OpLogInterceptor extends AbstractSqlParserHandler implements Interc
             kNames.addAll(keyNames);
             if(map.get("list")!=null&&map.get("collection")!=null){
                 //insert集合
-                List<Map> list = JSON.parseArray(JSON.toJSONString(map.get("list")),Map.class);
+                List<Map> list = (List<Map>)map.get("list");
                 String strList = list.stream().map(o->{
                     String s = "(";
                     for(int i=0; i<kNames.size(); i++){

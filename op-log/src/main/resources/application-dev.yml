@@ -12,3 +12,6 @@ spring:
 log:
   replace:
     packageName: com.jianghao.oplog.orm.po
+    updateInfoTemplate: {}:{}->{}
+    insertInfoTemplate: {}:{}
+    deleteInfoTemplate: {}:{}

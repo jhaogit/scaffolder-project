@@ -23,7 +23,6 @@ public class UserController {
 
     private final UserInfoMapper userInfoMapper;
 
-
     @DataLog
     @PutMapping("/update/userInfo")
     @Transactional

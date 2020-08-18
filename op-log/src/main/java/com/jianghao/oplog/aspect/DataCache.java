@@ -25,6 +25,10 @@ public class DataCache {
      */
     private String tableName;
     /**
+     * 表对应的实体类描述
+     */
+    private String tableNameDesc;
+    /**
      * 表主键对应的实体类属性名称集合
      */
     private Set<String> keyNames;

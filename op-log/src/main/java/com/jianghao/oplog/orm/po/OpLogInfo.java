@@ -27,6 +27,12 @@ public class OpLogInfo {
     private Integer opLogId;
 
     /**
+     * 变更类型 UPDATE/INSERT/DALETE
+     */
+    @ApiModelProperty(value="变更类型 UPDATE/INSERT/DALETE")
+    private String opType;
+
+    /**
     * 表名
     */
     @ApiModelProperty(value="表名")
@@ -39,9 +45,9 @@ public class OpLogInfo {
     private String tableKeyInfo;
 
     /**
-    * 变更信息，list:{"[名称]：[呵呵6]->[呵呵5]","[描述]：[测试6]->[测试5]"}
+    * 变更信息，list: [ [名称]：[呵呵6]->[呵呵5]","[描述]：[测试6]->[测试5] ]
     */
-    @ApiModelProperty(value="变更信息，list:,{'[名称]：[呵呵6]->[呵呵5]',,'[描述]：[测试6]->[测试5]'}")
+    @ApiModelProperty(value="变更信息，list:,[ [名称]：[呵呵6]->[呵呵5]\",\"[描述]：[测试6]->[测试5] ]")
     private String updateInfo;
 
     @ApiModelProperty(value="")

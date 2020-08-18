@@ -6,6 +6,7 @@
     <!--@Table op_log_info-->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="op_log_id" jdbcType="INTEGER" property="opLogId" />
+    <result column="op_type" jdbcType="VARCHAR" property="opType" />
     <result column="table_name" jdbcType="VARCHAR" property="tableName" />
     <result column="table_key_info" jdbcType="VARCHAR" property="tableKeyInfo" />
     <result column="update_info" jdbcType="VARCHAR" property="updateInfo" />
@@ -13,7 +14,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    id, op_log_id, `table_name`, table_key_info, update_info, create_time
+    id, op_type, op_log_id, `table_name`, table_key_info, update_info, create_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -29,9 +30,9 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" useGeneratedKeys="true" parameterType="com.jianghao.oplog.orm.po.OpLogInfo" >
     <!--@mbg.generated-->
-    insert into op_log_info (op_log_id, `table_name`, table_key_info, 
+    insert into op_log_info (op_type, op_log_id, `table_name`, table_key_info,
       update_info, create_time)
-    values (#{opLogId,jdbcType=INTEGER}, #{tableName,jdbcType=VARCHAR}, #{tableKeyInfo,jdbcType=VARCHAR}, 
+    values (#{opType,jdbcType=VARCHAR},#{opLogId,jdbcType=INTEGER}, #{tableName,jdbcType=VARCHAR}, #{tableKeyInfo,jdbcType=VARCHAR},
       #{updateInfo,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jianghao.oplog.orm.po.OpLogInfo" useGeneratedKeys="true">
@@ -40,6 +41,9 @@
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="opLogId != null">
         op_log_id,
+      </if>
+      <if test="opType != null">
+        `op_type`,
       </if>
       <if test="tableName != null">
         `table_name`,
@@ -57,6 +61,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="opLogId != null">
         #{opLogId,jdbcType=INTEGER},
+      </if>
+      <if test="opType != null">
+        #{opType,jdbcType=VARCHAR},
       </if>
       <if test="tableName != null">
         #{tableName,jdbcType=VARCHAR},
@@ -80,6 +87,9 @@
         op_log_id = #{opLogId,jdbcType=INTEGER},
       </if>
       <if test="tableName != null">
+        `op_type` = #{opType,jdbcType=VARCHAR},
+      </if>
+      <if test="tableName != null">
         `table_name` = #{tableName,jdbcType=VARCHAR},
       </if>
       <if test="tableKeyInfo != null">
@@ -98,6 +108,7 @@
     <!--@mbg.generated-->
     update op_log_info
     set op_log_id = #{opLogId,jdbcType=INTEGER},
+      `op_type` = #{opType,jdbcType=VARCHAR},
       `table_name` = #{tableName,jdbcType=VARCHAR},
       table_key_info = #{tableKeyInfo,jdbcType=VARCHAR},
       update_info = #{updateInfo,jdbcType=VARCHAR},
@@ -106,10 +117,10 @@
   </update>
   <insert id="insertListSelective" parameterType="java.util.List">
     <!--@mbg.generated-->
-    insert into op_log_info (op_log_id, `table_name`, table_key_info, update_info)
+    insert into op_log_info (op_type, op_log_id, `table_name`, table_key_info, update_info)
     values
     <foreach collection="list" item="item" index="i" separator=",">
-       (#{item.opLogId,jdbcType=INTEGER}, #{item.tableName,jdbcType=VARCHAR},
+       (#{item.opType,jdbcType=VARCHAR},#{item.opLogId,jdbcType=INTEGER}, #{item.tableName,jdbcType=VARCHAR},
        #{item.tableKeyInfo,jdbcType=VARCHAR},#{item.updateInfo,jdbcType=VARCHAR})
     </foreach>
   </insert>

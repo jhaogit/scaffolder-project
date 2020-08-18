@@ -87,7 +87,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jianghao.oplog.orm.po.UserInfo">
+  <update id="updateByPrimaryKeySelective" keyColumn="id" keyProperty="id" parameterType="com.jianghao.oplog.orm.po.UserInfo">
     <!--@mbg.generated-->
     update tb_user_info
     <set>

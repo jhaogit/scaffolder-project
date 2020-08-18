@@ -62,6 +62,12 @@ public class DataLogAspect {
     private OpLogInfoMapper opLogInfoMapper;
     @Value("${log.replace.packageName}")
     private String packageName;
+    @Value("${log.replace.updateInfoTemplate}")
+    private String updateInfoTemplate;
+    @Value("${log.replace.insertInfoTemplate}")
+    private String insertInfoTemplate;
+    @Value("${log.replace.deleteInfoTemplate}")
+    private String deleteInfoTemplate;
 
     /**
      *数据缓存，根据线程id
@@ -274,6 +280,9 @@ public class DataLogAspect {
                 for (int i = 0; i < oldData.size(); i++) {
                     final int[] finalI = {0};
                     CompareResult compareResult = sameClazzDiff(oldData.get(i), newData.get(i));
+                    if(compareResult==null){
+                        return;
+                    }
                     Set<String> kyes = compareResult.getKyes();
                     List<CompareParam> params = compareResult.getParams();
                     List<String> updateInfoList = new ArrayList<>();
@@ -284,10 +293,11 @@ public class DataLogAspect {
                             opLogInfo.setTableName(dataCache.getTableName());
                             opLogInfo.setTableKeyInfo(JSON.toJSONString(kyes));
                         }
-                        updateInfoList.add(StrUtil.format("[{}]：[{}]->[{}]", r.getFieldComment(),r.getOldValue(),r.getNewValue()));
+                        updateInfoList.add(StrUtil.format(updateInfoTemplate, r.getFieldComment(),r.getOldValue(),r.getNewValue()));
                         finalI[0]++;
                     });
                     opLogInfo.setUpdateInfo(JSON.toJSONString(updateInfoList));
+                    opLogInfo.setOpType(dataCache.getOpType().toString());
                     opLogInfos.add(opLogInfo);
                 }
                 log.info("修改结果：{}",opLogInfos);
@@ -306,10 +316,11 @@ public class DataLogAspect {
                             opLogInfo.setTableName(dataCache.getTableName());
                             opLogInfo.setTableKeyInfo(JSON.toJSONString(kyes));
                         }
-                        updateInfoList.add(StrUtil.format("[{}]：[{}]", r.getFieldComment(),r.getOldValue()));
+                        updateInfoList.add(StrUtil.format(deleteInfoTemplate, r.getFieldComment(),r.getOldValue()));
                         finalI[0]++;
                     });
                     opLogInfo.setUpdateInfo(JSON.toJSONString(updateInfoList));
+                    opLogInfo.setOpType(dataCache.getOpType().toString());
                     opLogInfos.add(opLogInfo);
                 }
                 log.info("删除结果：{}",opLogInfos);
@@ -328,16 +339,19 @@ public class DataLogAspect {
                             opLogInfo.setTableName(dataCache.getTableName());
                             opLogInfo.setTableKeyInfo(JSON.toJSONString(kyes));
                         }
-                        updateInfoList.add(StrUtil.format("[{}]：[{}]", r.getFieldComment(),r.getOldValue()));
+                        updateInfoList.add(StrUtil.format(insertInfoTemplate, r.getFieldComment(),r.getOldValue()));
                         finalI[0]++;
                     });
                     opLogInfo.setUpdateInfo(JSON.toJSONString(updateInfoList));
+                    opLogInfo.setOpType(dataCache.getOpType().toString());
                     opLogInfos.add(opLogInfo);
                 }
                 log.info("新增结果：{}",opLogInfos);
             }
         });
-        opLogInfoMapper.insertListSelective(opLogInfos);
+        if(!opLogInfos.isEmpty()&&opLogInfos.size()>0){
+            opLogInfoMapper.insertListSelective(opLogInfos);
+        }
         LOG_MAP.remove(Thread.currentThread().getId());
     }
 
@@ -398,8 +412,11 @@ public class DataLogAspect {
                 }
             }
         }
-        compareResult.setParams(params);
-        return compareResult;
+        if(!params.isEmpty()&&params.size()>0){
+            compareResult.setParams(params);
+            return compareResult;
+        }
+        return null;
     }
 
     /**
